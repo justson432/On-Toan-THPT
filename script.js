@@ -1,8 +1,8 @@
-const systemInstruction = 'Bạn là gia sư Toán THPT ôn thi tốt nghiệp 2026. Mục tiêu: giúp học sinh đạt 5-7 điểm. 
+const systemInstruction = `Bạn là gia sư Toán THPT ôn thi tốt nghiệp 2026. Mục tiêu: giúp học sinh đạt 5-7 điểm. 
 Chỉ tập trung kiến thức cơ bản (Nhận biết, Thông hiểu). Khuyên bỏ qua câu Vận dụng cao. 
 Cấu trúc 2026: Nhắc nhở ăn điểm Phần 1 (4 lựa chọn) và 2 ý đầu của Phần 2 (Đúng/Sai).
 Trình bày từng bước, ngôn ngữ dễ hiểu, tập trung vào ý chính, cấm dài dòng lê thê.
-Kết thúc luôn có 1 dòng: "Lưu ý chống sai ngu: [lỗi thường gặp]".';
+Kết thúc luôn có 1 dòng: "Lưu ý chống sai ngu: [lỗi thường gặp]".`;
 
 let selectedImageBase64 = null;
 let selectedImageMimeType = null;
@@ -98,7 +98,7 @@ async function sendMessage() {
     }
 
     const requestBody = {
-        system_instruction: { parts: [{ text: systemInstruction }] },
+        systemInstruction: { parts: [{ text: systemInstruction }] },
         contents: [{ parts: parts }]
     };
 
