@@ -1,16 +1,13 @@
-// Không còn gán cứng API_KEY ở đây nữa!
 const systemInstruction = `Bạn là gia sư Toán THPT ôn thi tốt nghiệp 2026. Mục tiêu: giúp học sinh đạt 5-7 điểm. 
 Chỉ tập trung kiến thức cơ bản (Nhận biết, Thông hiểu). Khuyên bỏ qua câu Vận dụng cao. 
 Cấu trúc 2026: Nhắc nhở ăn điểm Phần 1 (4 lựa chọn) và 2 ý đầu của Phần 2 (Đúng/Sai).
-Trình bày từng bước, ngôn ngữ dễ hiểu.
+Trình bày từng bước, ngôn ngữ dễ hiểu, tập trung vào ý chính, cấm dài dòng lê thê.
 Kết thúc luôn có 1 dòng: "Lưu ý chống sai ngu: [lỗi thường gặp]".`;
 
 let selectedImageBase64 = null;
 let selectedImageMimeType = null;
 
-// ==========================================
-// KHỞI TẠO: Tải Key từ bộ nhớ (nếu có) khi vừa mở web
-// ==========================================
+// Khởi tạo: Tải Key từ bộ nhớ khi vừa mở web
 window.onload = function() {
     const savedKey = localStorage.getItem('gemini_api_key');
     if (savedKey) {
@@ -29,14 +26,13 @@ function saveApiKey() {
     }
 }
 
-// ==========================================
-// TÍNH NĂNG CHỌN VÀ DÁN ẢNH (Giữ nguyên)
-// ==========================================
+// Lắng nghe chọn ảnh
 document.getElementById('file-input').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) processImageFile(file);
 });
 
+// Lắng nghe dán ảnh (Ctrl + V)
 document.addEventListener('paste', function(event) {
     const items = (event.clipboardData || window.clipboardData).items;
     for (let index in items) {
@@ -48,6 +44,7 @@ document.addEventListener('paste', function(event) {
     }
 });
 
+// Xử lý file ảnh
 function processImageFile(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -59,6 +56,7 @@ function processImageFile(file) {
     reader.readAsDataURL(file);
 }
 
+// Hủy ảnh
 function removeImage() {
     document.getElementById('file-input').value = "";
     document.getElementById('preview-area').style.display = 'none';
@@ -66,11 +64,8 @@ function removeImage() {
     selectedImageMimeType = null;
 }
 
-// ==========================================
-// XỬ LÝ GỬI TIN NHẮN ĐI
-// ==========================================
+// Xử lý gửi tin nhắn
 async function sendMessage() {
-    // 1. Kiểm tra xem người dùng đã nhập Key chưa
     const apiKey = document.getElementById('api-key-input').value.trim();
     if (!apiKey) {
         alert("Bạn chưa nhập Gemini API Key ở phía trên!");
@@ -82,7 +77,6 @@ async function sendMessage() {
     
     if (!message && !selectedImageBase64) return; 
 
-    // Hiển thị tin nhắn người dùng
     let displayHtml = message;
     if (selectedImageBase64) {
         displayHtml += `<br><img src="data:${selectedImageMimeType};base64,${selectedImageBase64}">`;
@@ -90,7 +84,6 @@ async function sendMessage() {
     displayMessage(displayHtml, "user");
     inputField.value = ""; 
 
-    // Đóng gói dữ liệu
     const parts = [];
     if (message) {
         parts.push({ text: message });
@@ -110,11 +103,9 @@ async function sendMessage() {
     };
 
     removeImage(); 
-
-    // 2. Tạo URL động gắn API Key người dùng vừa nhập
+    
     const dynamicApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-    // Gọi API
     try {
         displayMessage("Đang tính toán...", "ai", "loading");
         
@@ -143,6 +134,7 @@ async function sendMessage() {
     }
 }
 
+// Hàm in tin nhắn ra màn hình và Kích hoạt dịch Toán
 function displayMessage(text, sender, id = "") {
     const chatBox = document.getElementById("chat-box");
     const msgDiv = document.createElement("div");
@@ -152,4 +144,11 @@ function displayMessage(text, sender, id = "") {
     
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Yêu cầu MathJax dịch công thức Toán học
+    if (window.MathJax) {
+        MathJax.typesetPromise([msgDiv]).catch(function (err) {
+            console.log('Lỗi dịch công thức Toán: ', err.message);
+        });
+    }
 }
