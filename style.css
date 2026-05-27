@@ -63,3 +63,39 @@ button {
     border-radius: 5px;
     cursor: pointer;
 }
+.upload-icon {
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+#preview-area {
+    padding: 10px;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    position: relative;
+}
+
+#image-preview {
+    max-height: 80px;
+    border-radius: 5px;
+}
+
+.remove-btn {
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: 10px;
+    vertical-align: bottom;
+}
+
+/* Chỉnh ảnh khi hiển thị trong bong bóng chat */
+.message img {
+    max-width: 100%;
+    border-radius: 5px;
+    margin-top: 5px;
+}
