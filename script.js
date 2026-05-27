@@ -155,3 +155,66 @@ function displayMessage(text, sender, id = "") {
         });
     }
 }
+// ==========================================
+// TÍNH NĂNG ẨN/HIỆN CHAT VÀ NÚT GỢI Ý
+// ==========================================
+
+// 1. Hàm bật/tắt cửa sổ chat nổi
+function toggleChat() {
+    const chatPopup = document.getElementById('chat-popup');
+    chatPopup.classList.toggle('chat-hidden');
+}
+
+// 2. Hàm kích hoạt khi học sinh bấm nút "Gợi ý"
+function xinGoiY(idCauHoi) {
+    // Mở cửa sổ chat nếu đang đóng
+    const chatPopup = document.getElementById('chat-popup');
+    if (chatPopup.classList.contains('chat-hidden')) {
+        chatPopup.classList.remove('chat-hidden');
+    }
+
+    // Lấy chữ trong đề bài để đưa cho AI
+    const deBai = document.getElementById(idCauHoi).innerText;
+    displayMessage("Cho mình xin gợi ý cách làm câu này: " + deBai, "user");
+
+    // Ép AI không được giải trọn vẹn
+    const secretPrompt = `Học sinh đang hỏi câu Toán này: "${deBai}". 
+    Lệnh tuyệt mật: BẠN CHỈ ĐƯỢC PHÉP ĐƯA RA GỢI Ý HOẶC CÔNG THỨC BƯỚC ĐẦU TIÊN. Tuyệt đối không được giải ra đáp án cuối cùng. Dùng ngôn ngữ động viên học sinh.`;
+
+    goiTinNhanAn(secretPrompt);
+}
+
+// 3. Hàm gửi lệnh ngầm cho AI xử lý
+async function goiTinNhanAn(promptText) {
+    const apiKey = document.getElementById('api-key-input').value.trim();
+    if (!apiKey) {
+        alert("Bạn chưa nhập Gemini API Key!");
+        return;
+    }
+
+    const requestBody = {
+        system_instruction: { parts: [{ text: systemInstruction }] },
+        contents: [{ parts: [{ text: promptText }] }]
+    };
+
+    const dynamicApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    try {
+        displayMessage("Đang phân tích đề...", "ai", "loading");
+        const response = await fetch(dynamicApiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        const aiText = data.candidates[0].content.parts[0].text;
+        
+        document.getElementById("loading").remove();
+        displayMessage(aiText, "ai");
+
+    } catch (error) {
+        document.getElementById("loading").remove();
+        displayMessage("Lỗi kết nối AI.", "ai");
+    }
+}
