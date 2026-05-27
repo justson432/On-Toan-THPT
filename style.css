@@ -99,3 +99,24 @@ button {
     border-radius: 5px;
     margin-top: 5px;
 }
+.api-setup {
+    margin-top: 10px;
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+#api-key-input {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+    width: 200px;
+}
+
+.api-setup button {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-left: 0;
+    background-color: #28a745; /* Màu xanh lá cho nút Lưu */
+}
