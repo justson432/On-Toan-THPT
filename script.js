@@ -1,4 +1,5 @@
-const API_KEY = 'NHẬP_API_KEY_VÀO_ĐÂY'; 
+// Thay bằng API Key thật của bạn
+const API_KEY = 'NHẬP_API_KEY_CỦA_BẠN_VÀO_ĐÂY'; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash-preview:generateContent?key=${API_KEY}`;
 
 const systemInstruction = `Bạn là gia sư Toán THPT ôn thi tốt nghiệp 2026. Mục tiêu: giúp học sinh đạt 5-7 điểm. 
@@ -10,25 +11,51 @@ Kết thúc luôn có 1 dòng: "Lưu ý chống sai ngu: [lỗi thường gặp]
 let selectedImageBase64 = null;
 let selectedImageMimeType = null;
 
-// Xử lý khi người dùng chọn ảnh
+// ==========================================
+// 1. TÍNH NĂNG CHỌN ẢNH TỪ NÚT BẤM (🖼️)
+// ==========================================
 document.getElementById('file-input').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Hiển thị ảnh xem trước
-            document.getElementById('image-preview').src = e.target.result;
-            document.getElementById('preview-area').style.display = 'block';
-            
-            // Tách lấy chuỗi base64 (bỏ phần data:image/jpeg;base64, ở đầu)
-            selectedImageBase64 = e.target.result.split(',')[1];
-            selectedImageMimeType = file.type;
-        };
-        reader.readAsDataURL(file); // Đọc file dưới dạng Data URL
+        processImageFile(file);
     }
 });
 
-// Hàm hủy chọn ảnh
+// ==========================================
+// 2. TÍNH NĂNG COPY/PASTE ẢNH VÀO Ô CHAT (Ctrl+V)
+// ==========================================
+document.getElementById('user-input').addEventListener('paste', function(event) {
+    const items = (event.clipboardData || window.clipboardData).items;
+    for (let index in items) {
+        const item = items[index];
+        // Nếu dữ liệu dán vào là một tệp hình ảnh
+        if (item.kind === 'file' && item.type.includes('image/')) {
+            const file = item.getAsFile();
+            processImageFile(file);
+        }
+    }
+});
+
+// ==========================================
+// 3. CÁC HÀM XỬ LÝ CHUNG
+// ==========================================
+
+// Hàm xử lý file ảnh (dùng chung cho cả 2 cách trên)
+function processImageFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        // Hiện ảnh xem trước lên màn hình
+        document.getElementById('image-preview').src = e.target.result;
+        document.getElementById('preview-area').style.display = 'block';
+        
+        // Lưu dữ liệu để chuẩn bị gửi cho AI
+        selectedImageBase64 = e.target.result.split(',')[1];
+        selectedImageMimeType = file.type;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Hàm hủy chọn ảnh (khi bấm dấu X)
 function removeImage() {
     document.getElementById('file-input').value = "";
     document.getElementById('preview-area').style.display = 'none';
@@ -36,6 +63,7 @@ function removeImage() {
     selectedImageMimeType = null;
 }
 
+// Hàm gửi tin nhắn và ảnh cho AI
 async function sendMessage() {
     const inputField = document.getElementById("user-input");
     const message = inputField.value.trim();
@@ -43,15 +71,15 @@ async function sendMessage() {
     // Nếu không có chữ và cũng không có ảnh thì không làm gì cả
     if (!message && !selectedImageBase64) return; 
 
-    // 1. Hiển thị tin nhắn người dùng lên giao diện
+    // Hiển thị tin nhắn của người dùng lên màn hình
     let displayHtml = message;
     if (selectedImageBase64) {
         displayHtml += `<br><img src="data:${selectedImageMimeType};base64,${selectedImageBase64}">`;
     }
     displayMessage(displayHtml, "user");
-    inputField.value = "";
+    inputField.value = ""; // Xóa trắng ô nhập liệu
 
-    // 2. Đóng gói dữ liệu gửi cho AI (Kết hợp Text và Image)
+    // Chuẩn bị gói dữ liệu gửi đi
     const parts = [];
     if (message) {
         parts.push({ text: message });
@@ -73,10 +101,10 @@ async function sendMessage() {
         contents: [{ parts: parts }]
     };
 
-    // Xóa ảnh xem trước sau khi đã bấm gửi
+    // Dọn dẹp khu vực xem trước ảnh
     removeImage(); 
 
-    // 3. Gọi API
+    // Gọi API của Google Gemini
     try {
         displayMessage("Đang tính toán...", "ai", "loading");
         
@@ -106,11 +134,11 @@ async function sendMessage() {
     }
 }
 
+// Hàm in tin nhắn ra khung chat
 function displayMessage(text, sender, id = "") {
     const chatBox = document.getElementById("chat-box");
     const msgDiv = document.createElement("div");
     msgDiv.className = `message ${sender}`;
-    // Cho phép hiển thị HTML (để load thẻ <img> và <br>)
     msgDiv.innerHTML = text.replace(/\n/g, "<br>"); 
     if (id) msgDiv.id = id;
     
