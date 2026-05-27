@@ -33,13 +33,16 @@ document.getElementById('file-input').addEventListener('change', function(event)
 });
 
 // Lắng nghe dán ảnh (Ctrl + V)
-document.addEventListener('paste', function(event) {
+window.addEventListener('paste', function(event) {
     const items = (event.clipboardData || window.clipboardData).items;
     for (let index in items) {
         const item = items[index];
         if (item.kind === 'file' && item.type.includes('image/')) {
+            // Lệnh quan trọng: Ép trình duyệt không được chối từ ảnh
+            event.preventDefault(); 
             const file = item.getAsFile();
             processImageFile(file);
+            break;
         }
     }
 });
