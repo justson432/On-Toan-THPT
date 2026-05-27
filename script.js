@@ -24,18 +24,36 @@ document.getElementById('file-input').addEventListener('change', function(event)
 // ==========================================
 // 2. TÍNH NĂNG COPY/PASTE ẢNH VÀO Ô CHAT (Ctrl+V)
 // ==========================================
-document.getElementById('user-input').addEventListener('paste', function(event) {
-    const items = (event.clipboardData || window.clipboardData).items;
-    for (let index in items) {
-        const item = items[index];
-        // Nếu dữ liệu dán vào là một tệp hình ảnh
-        if (item.kind === 'file' && item.type.includes('image/')) {
+window.addEventListener('paste', function(e) {
+    // Mở F12 -> tab Console sẽ thấy dòng này để biết code có chạy không
+    console.log("🔥 Đã nhận thao tác dán (Ctrl+V)!"); 
+    
+    // Lấy dữ liệu từ khay nhớ tạm
+    const clipboardItems = (e.clipboardData || window.clipboardData).items;
+    let foundImage = false;
+
+    for (let i = 0; i < clipboardItems.length; i++) {
+        const item = clipboardItems[i];
+        
+        // Nếu phát hiện ra đây là ảnh (pixel)
+        if (item.type.indexOf("image") !== -1) {
+            foundImage = true;
             const file = item.getAsFile();
+            console.log("✅ Đã tóm được ảnh:", file);
+            
+            // CỰC KỲ QUAN TRỌNG: Ngăn chặn trình duyệt cố gắng dán ảnh vào ô text gây lỗi ngầm
+            e.preventDefault(); 
+            
+            // Gọi hàm hiển thị ảnh lên màn hình
             processImageFile(file);
+            break; // Tìm thấy ảnh rồi thì dừng vòng lặp
         }
     }
-});
 
+    if (!foundImage) {
+        console.log("❌ Trong khay nhớ tạm hiện tại không có ảnh dạng pixel.");
+    }
+});
 // ==========================================
 // 3. CÁC HÀM XỬ LÝ CHUNG
 // ==========================================
