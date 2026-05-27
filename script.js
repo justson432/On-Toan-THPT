@@ -112,7 +112,7 @@ async function sendMessage() {
     removeImage(); 
 
     // 2. Tạo URL động gắn API Key người dùng vừa nhập
-    const dynamicApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+    const dynamicApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     // Gọi API
     try {
