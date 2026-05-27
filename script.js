@@ -1,5 +1,5 @@
 // Thay bằng API Key thật của bạn
-const API_KEY = 'NHẬP_API_KEY_CỦA_BẠN_VÀO_ĐÂY'; 
+const API_KEY = 'AIzaSyCG7s6HKP4c0OqP7_r6ucFxTjpWK0EDbog'; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash-preview:generateContent?key=${API_KEY}`;
 
 const systemInstruction = `Bạn là gia sư Toán THPT ôn thi tốt nghiệp 2026. Mục tiêu: giúp học sinh đạt 5-7 điểm. 
